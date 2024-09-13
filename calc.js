@@ -18,11 +18,15 @@ export class Howmuchcaniborrow extends LitElement {
   }
 
   static properties = {
-    income: {}, interestRate: {}, deposit: {}, amount: {},
+    income: {}, interestRate: 4.5, deposit: {}, amount: {},
   };
 
   constructor () {
     super();
+  }
+
+  createRenderRoot () {
+    return this;
   }
 
   render () {
@@ -36,14 +40,12 @@ export class Howmuchcaniborrow extends LitElement {
       
         <label>Annual Gross Income:</label>
           <input @keyup=${e => this.income = parseFloat(e.target.value) ? parseFloat(e.target.value) : 0} type="text" .value="${this.income || ''}" name="income"/>
-      <br>    
-        <label>Interest Rate of ${this.interestRate}%:</label>
-         <input type="range" min="0" max="10" value="4.5" class="slider" id="myRange" step="0.25" .value="${this.interestRate}" @change=${e => this.interestRate = parseFloat(e.target.value) ? parseFloat(e.target.value) : 0}>
-      <br>
+       <br>
         <label>Deposit:</label>
           <input @keyup=${e => this.deposit = parseFloat(e.target.value) ? parseFloat(e.target.value) : 0} type="text" .value="${this.deposit}" name="deposit"  />
    
-        <p>You can borrow: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''}</p>
+        <p>You could borrow: ${this.amount > 0 ? this.PoundsSterling().format(this.amount - this.deposit) : ''}</p>
+        <p>To buy a property worth: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''}</p>
     
     </form>
     `;
@@ -75,9 +77,19 @@ export class RepaymentCalculator extends LitElement {
     super();
   }
 
+  calculatePayment (principal, rate, term) {
+    rate = rate / 1200
+    term = term * 12
+    this.amount = principal * (rate * Math.pow((1 + rate), term)) / (Math.pow((1 + rate), term) - 1);
+  }
+
+  createRenderRoot () {
+    return this;
+  }
+
   render () {
     if (parseFloat(this.borrowed) > 0 && parseFloat(this.interestRate) > 0) {
-      this.amount = (((parseFloat(this.borrowed) * (parseFloat(this.interestRate) / 100)) + parseFloat(this.borrowed)) / parseFloat(this.term)).toFixed(0);
+      this.calculatePayment(this.borrowed, parseFloat(this.interestRate), this.term)
     }
 
     return html`
@@ -93,7 +105,7 @@ export class RepaymentCalculator extends LitElement {
         <label>Term:</label>
           <input @keyup=${e => this.term = parseFloat(e.target.value) ? parseFloat(e.target.value) : 25} type="text" .value="${this.term}" />
    
-        <p>You will pay approx: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''} per year, that is ${this.amount > 0 ? this.PoundsSterling().format(this.amount / 12) : ''} per month</p>
+        <p>You will pay approx: ${this.amount > 0 ? this.PoundsSterling().format(this.amount * 12) : ''} per year, that is ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''} per month</p>
     
     </form>
     `;
@@ -123,6 +135,10 @@ export class Lbtt extends LitElement {
 
   constructor () {
     super();
+  }
+
+  createRenderRoot () {
+    return this;
   }
 
   getInterestFor (price, isFirstTimeBuyer, isSecondHome) {
