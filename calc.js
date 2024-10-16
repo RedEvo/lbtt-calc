@@ -1,16 +1,13 @@
-import {LitElement, html, css} from 'https://cdn.jsdelivr.net/gh/lit/dist/core/lit-core.min.js';
+import {LitElement, html} from 'https://cdn.jsdelivr.net/gh/lit/dist/core/lit-core.min.js';
+
+window.addEventListener('message', event => {
+  if (event.data.type === 'hsFormCallback' && event.data.eventName === 'onFormSubmitted') {
+    [...document.getElementsByClassName('calc-result')].forEach((r) => r.style.display = "block");
+    [...document.getElementsByClassName('hbspt-form')].forEach((r) => r.style.display = "none");
+  }
+});
 
 export class Howmuchcaniborrow extends LitElement {
-  static styles = css`
-      h1 {
-          color: blue
-      }
-
-      p {
-          font-weight: bold;
-      }
-  `;
-
   PoundsSterling () {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency', currency: 'GBP',
@@ -20,10 +17,7 @@ export class Howmuchcaniborrow extends LitElement {
   static properties = {
     income: {}, interestRate: 4.5, deposit: {}, amount: {},
   };
-
-  constructor () {
-    super();
-  }
+  
 
   createRenderRoot () {
     return this;
@@ -44,8 +38,10 @@ export class Howmuchcaniborrow extends LitElement {
         <label>Deposit:</label>
           <input @keyup=${e => this.deposit = parseFloat(e.target.value) ? parseFloat(e.target.value) : 0} type="text" .value="${this.deposit}" name="deposit"  />
    
-        <p>You could borrow: ${this.amount > 0 ? this.PoundsSterling().format(this.amount - this.deposit) : ''}</p>
-        <p>To buy a property worth: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''}</p>
+        <div class="calc-result" style="display:none">
+          <p>You could borrow: ${this.amount > 0 ? this.PoundsSterling().format(this.amount - this.deposit) : ''}</p>
+          <p>To buy a property worth: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''}</p>
+        </div>
     
     </form>
     `;
@@ -53,15 +49,6 @@ export class Howmuchcaniborrow extends LitElement {
 }
 
 export class RepaymentCalculator extends LitElement {
-  static styles = css`
-      h1 {
-          color: blue
-      }
-
-      p {
-          font-weight: bold;
-      }
-  `;
 
   PoundsSterling () {
     return new Intl.NumberFormat('en-GB', {
@@ -72,10 +59,6 @@ export class RepaymentCalculator extends LitElement {
   static properties = {
     borrowed: {}, interestRate: {}, term: {}, amount: {},
   };
-
-  constructor () {
-    super();
-  }
 
   calculatePayment (principal, rate, term) {
     rate = rate / 1200
@@ -105,7 +88,9 @@ export class RepaymentCalculator extends LitElement {
         <label>Term:</label>
           <input @keyup=${e => this.term = parseFloat(e.target.value) ? parseFloat(e.target.value) : 25} type="text" .value="${this.term}" />
    
-        <p>You will pay approx: ${this.amount > 0 ? this.PoundsSterling().format(this.amount * 12) : ''} per year, that is ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''} per month</p>
+        <div class="calc-result" style="display:none">
+          <p>You will pay approx: ${this.amount > 0 ? this.PoundsSterling().format(this.amount * 12) : ''} per year, that is ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : ''} per month</p>
+        </div>
     
     </form>
     `;
@@ -113,15 +98,6 @@ export class RepaymentCalculator extends LitElement {
 }
 
 export class Lbtt extends LitElement {
-  static styles = css`
-      h1 {
-          color: blue
-      }
-
-      p {
-          font-weight: bold;
-      }
-  `;
 
   PoundsSterling () {
     return new Intl.NumberFormat('en-GB', {
@@ -132,10 +108,6 @@ export class Lbtt extends LitElement {
   static properties = {
     price: {}, buyertype: {}, amount: {},
   };
-
-  constructor () {
-    super();
-  }
 
   createRenderRoot () {
     return this;
@@ -214,8 +186,8 @@ export class Lbtt extends LitElement {
       
       <br>
       
-        <p>You will pay approx: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : '0.00'}</p>
-    
+        <p class="calc-result" style="display:none">You will pay approx: ${this.amount > 0 ? this.PoundsSterling().format(this.amount) : '0.00'}</p>
+       
     </form>
     `;
   }
